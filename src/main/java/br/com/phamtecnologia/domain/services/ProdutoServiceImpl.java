@@ -1,5 +1,6 @@
 package br.com.phamtecnologia.domain.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.phamtecnologia.domain.entities.Produto;
 import br.com.phamtecnologia.domain.interfaces.ProdutoService;
+import br.com.phamtecnologia.dtos.ProdutoPostDto;
 import br.com.phamtecnologia.repositories.ProdutoRepository;
 
 @Service
@@ -17,7 +19,16 @@ public class ProdutoServiceImpl implements ProdutoService{
 	ProdutoRepository produtoRepository;
 	
 	@Override
-	public void create(Produto produto) throws Exception {
+	public void create(ProdutoPostDto dto) throws Exception {
+
+		Produto produto = new Produto();
+		
+		produto.setId(UUID.randomUUID());
+		produto.setNome(dto.getNome());
+		produto.setPreco(new BigDecimal(dto.getPreco()));
+		produto.setQuantidade(dto.getQuantidade());
+		produto.setDescricao(dto.getDescricao());
+		
 		produtoRepository.save(produto);
 	}
 
