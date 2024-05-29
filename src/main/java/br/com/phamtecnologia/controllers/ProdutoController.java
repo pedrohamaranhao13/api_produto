@@ -1,12 +1,16 @@
 package br.com.phamtecnologia.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.phamtecnologia.domain.entities.Produto;
 import br.com.phamtecnologia.domain.interfaces.ProdutoService;
+import br.com.phamtecnologia.dtos.ProdutoGetDto;
 import br.com.phamtecnologia.dtos.ProdutoPostDto;
+import br.com.phamtecnologia.dtos.ProdutoPutDto;
 import br.com.phamtecnologia.dtos.SuccessResponseDto;
 import jakarta.validation.Valid;
 
@@ -25,6 +31,9 @@ public class ProdutoController {
 	
 	@Autowired
 	ProdutoService produtoService;
+	
+	@Autowired
+	ModelMapper modelMapper;
 	
 	@PostMapping
 	public ResponseEntity<SuccessResponseDto> post(@RequestBody @Valid ProdutoPostDto dto) throws Exception{
@@ -39,23 +48,38 @@ public class ProdutoController {
 	}
 	
 	@PutMapping
-	public void put() {
+	public ResponseEntity<SuccessResponseDto> put(@RequestBody @Valid ProdutoPutDto dto) throws Exception{
 		
+		produtoService.update(dto);
+		
+		SuccessResponseDto response = new SuccessResponseDto();
+		response.setStatus(HttpStatus.OK);
+		response.setMessage("Produto atualizado com sucesso.");
+		
+		return ResponseEntity.status(200).body(response);
 	}
 	
-	@DeleteMapping
-	public void delete() {
+	@DeleteMapping("{id}")
+	public ResponseEntity<SuccessResponseDto> delete(@PathVariable("id") UUID id) throws Exception{
 		
+		produtoService.delete(id);
+		
+		SuccessResponseDto response = new SuccessResponseDto();
+		response.setStatus(HttpStatus.OK);
+		response.setMessage("Produto excluído com sucesso.");
+		
+		return ResponseEntity.status(200).body(response);
 	}
 	
 	@GetMapping
-	public List<Produto> getAll() {
-		try {
-			return produtoService.findAll();
-		} catch (Exception  e) {
-			e.printStackTrace();
-			return null;
-		}
+	public List<ProdutoGetDto> getAll() throws Exception{
+		
+		List<Produto> produtos = produtoService.findAll();
+		List<ProdutoGetDto> result = modelMapper.map(produtos, 
+				new TypeToken<List<ProdutoGetDto>>() {}.getType());
+				
+		return result;
+		
 	}
 
 }
